@@ -14,7 +14,7 @@
 #include <time.h>
 
 int main( void )
-//bla
+
 {  
   time_t       t0,t1;
      
@@ -41,4 +41,4 @@ int main( void )
  
   return 0;
 }
-
+//bla
