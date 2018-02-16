@@ -21,7 +21,7 @@ int main( void )
   BodyList     *blist = malloc(sizeof( BodyList ) + 100000*sizeof(Body));
   QuadTree     *qt    = malloc(sizeof( QuadTree ) + 200000*sizeof(Node));
 
-  readInput( "input50000.txt" , blist );
+  readInput( "input50.txt" , blist );
   
   printBodies( blist );
 
