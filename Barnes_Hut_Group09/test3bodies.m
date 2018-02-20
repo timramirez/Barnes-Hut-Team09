@@ -8,11 +8,14 @@ data = [6.10357e+00  3.83627e+00  0.00000e+00  0.00000e+00  8.04789e+01
 pos = data(:,1:2);
 mass = data(:,end);
 F = [0 0; 0 0; 0 0];
-iBod = 1;
-    for jBod = 2:3
-        R = sqrt((pos(iBod, 1)-pos(jBod, 1))^2 + (pos(iBod, 2)-pos(jBod, 2))^2);
-        uij = pos(jBod,:)-pos(iBod,:)/R;
-        Fij = (mass(iBod)*mass(jBod)/(R^2)).*uij;
-        F(iBod,:) = F(iBod,:)+Fij;
-        F(jBod,:) = F(jBod,:)-Fij;
+for iBod = 1:nBod
+    if iBod < nBod
+        for jBod = (iBod+1):nBod
+            R = sqrt((pos(iBod, 1)-pos(jBod, 1))^2 + (pos(iBod, 2)-pos(jBod, 2))^2);
+            uij = (pos(jBod,:)-pos(iBod,:))/R;
+            Fij = (mass(iBod)*mass(jBod)/(R^2)).*uij;
+            F(iBod,:) = F(iBod,:)+Fij;
+            F(jBod,:) = F(jBod,:)-Fij;
+        end
     end
+end
