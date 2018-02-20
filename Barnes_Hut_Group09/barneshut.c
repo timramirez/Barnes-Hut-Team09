@@ -21,11 +21,9 @@ int main( void )
   BodyList     *blist = malloc(sizeof( BodyList ) + 100000*sizeof(Body));
   QuadTree     *qt    = malloc(sizeof( QuadTree ) + 200000*sizeof(Node));
 
-  readInput( "input3.txt" , blist );
+  readInput( "input50.txt" , blist );
   
-  printBodies( blist );
-
-  t0 = clock();
+//  printBodies( blist );
   
   initQuadTree( qt , blist->domainSize );
 
@@ -34,16 +32,18 @@ int main( void )
     addBodyToNode( qt , &blist->body[i] , 0 );
   }
 
-  t1 = clock();
-
-  printf("Time needed to fill the QuadTree:   %f  seconds.\n", 
-           (double)(t1 - t0)/CLOCKS_PER_SEC );
+  t0 = clock();
 
   clearForces( blist );
 
   bruteForces( blist );
 
-  printBruteForces ( blist );
+//  printBruteForces ( blist );
+
+  t1 = clock();
+
+  printf("Time needed to calculate forces:   %f  seconds.\n", 
+           (double)(t1 - t0)/CLOCKS_PER_SEC );
  
   return 0;
 }
