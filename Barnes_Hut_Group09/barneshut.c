@@ -20,6 +20,7 @@ int main( void )
      
   BodyList     *blist = malloc(sizeof( BodyList ) + 100000*sizeof(Body));
   QuadTree     *qt    = malloc(sizeof( QuadTree ) + 200000*sizeof(Node));
+  double       theta = 0.5;
 
   readInput( "input500.txt" , blist );
   
@@ -45,10 +46,11 @@ int main( void )
   printf("Time needed to calculate forces:   %f  seconds.\n", 
            (double)(t1 - t0)/CLOCKS_PER_SEC );
 
-  printQuadTree(qt);
+//  printQuadTree(qt);
 
-  GenerateXMLfile(blist, qt);
+  GenerateXMLfile(qt, blist);
 
+  BarnesHut(qt, blist, theta);
 
   return 0;
 }

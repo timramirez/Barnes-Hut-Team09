@@ -258,8 +258,8 @@ void printQuadTree
 
 void GenerateXMLfile
 
-( BodyList*       blist,
-  QuadTree*       qt );
+  ( QuadTree*       qt    , 
+    BodyList*       blist );
 
 //  clearForces: Function that clears the forces on all bodies 
 //    pre    : -
@@ -273,7 +273,7 @@ void clearForces
 
 //-----------------------------------------------------------------------------
 //  bruteForces: Function that calculates the brute forces on all bodies 
-//    pre    : -
+//    pre    : The forces have to be cleared first.
 //    post   : The brute forces are calculated and saved in all bodies.
 //    result : -
 //-----------------------------------------------------------------------------
@@ -304,6 +304,65 @@ void bruteForceBody
 void printBruteForces
 
   ( BodyList*   blist );
+
+//-----------------------------------------------------------------------------
+//  barnesHut: Function that calculates the BarnesHut forces on the system
+//    pre    : The foreces have to be cleared first.
+//    post   : The forces on the system are calculated via the BarnesHut algorithm.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void barnesHut
+
+  ( QuadTree*       qt    , 
+    BodyList*       blist ,
+    float           theta );
+
+//-----------------------------------------------------------------------------
+//  barnesHutBody: Function that calculates the BarnesHut forces on the system
+//    pre    : The quadtree has to be made first.
+//    post   : The forces on a single body are calculated via the BarnesHut algorithm.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void barnesHutBody
+
+  ( QuadTree*       qt    , 
+    BodyList*       blist ,
+    int             iBod  ,
+    float           theta );
+
+//-----------------------------------------------------------------------------
+//  checkCalculationMethod: Function that determines what step in the BarnesHut 
+//  algorithm will be followed.
+//    pre    : -
+//    post   : A step in the BarnesHut algorithm is selected
+//    result : 1 for a leaf, 2 if the center of mass of the node can be used for
+//             the calculation and 3 if the children of the node has to be evaluated.
+//-----------------------------------------------------------------------------
+
+int checkCalculationMethod
+
+  ( QuadTree*       qt    , 
+    BodyList*       blist ,
+    int             iBod  ,
+    float           theta ,
+    int             iNod  );
+
+//-----------------------------------------------------------------------------
+//  forceBarnesHut: Function that calculates and updates the force on a single body 
+//  casued by a single node in the quad tree.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void forceBarnesHut
+
+  ( QuadTree*       qt    ,
+    BodyList*       blist ,
+    int             iNod  ,
+    int             iBod  );
 
 
 #endif

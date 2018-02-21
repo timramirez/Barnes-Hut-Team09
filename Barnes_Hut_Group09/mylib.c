@@ -376,8 +376,8 @@ void printQuadTree
 
 void GenerateXMLfile
 
-( BodyList*       blist,
-  QuadTree*       qt )
+(   QuadTree*       qt    , 
+    BodyList*       blist )
 
 {
 
@@ -546,4 +546,128 @@ void printBruteForces
   {
     printf("The resulting brute force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].force.x, blist->body[iBod].force.y);
   }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void barnesHut
+
+(   QuadTree*       qt    , 
+    BodyList*       blist ,
+    double          theta )
+
+{
+  int iBod;
+  
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    barnesHutBody( qt, blist, iBod, theta );
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void barnesHutBody
+
+(   QuadTree*       qt    , 
+    BodyList*       blist ,
+    int             iBod  ,
+    double          theta )
+
+{
+  Vector    posi = blist->body[iBod].pos;
+  double    masi = blist->body[iBod].mass;
+
+  for (iNod = 0) //nog afmaken
+
+  int solveMethod = checkCalculationMethod( qt, blist, iBod, theta, iNod );
+
+  if ( solveMethod == 1 )
+  {
+
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+int checkCalculationMethod
+
+(   QuadTree*       qt    , 
+    BodyList*       blist , 
+    int             iBod  , 
+    double          theta , 
+    int             iNod  )
+
+{
+  if ( qt->node[idx].nBod == 1 )
+  {
+    return 1;                   // The node is a leaf, so calculate the same way as with the brute forces.
+  }
+  else
+  {
+    double boxWidth;
+    double distance;
+
+    posi     = blist->body[iBod].pos;
+    posj     = qt->node[iNod].com;
+
+    boxWidth = abs( qt->node[iNod].box.point1.x - qt->node[iNod].box.point2.x );
+    distance = sqrt(pow((posi.x - posj.x), 2) + pow((posi.y - posj.y), 2));
+
+    if ( boxWidth/distance < theta )
+    {
+      return 2;                 // The node is sufficiently far away with this width, so calculate via center of mass of node.
+    }
+    else
+    {
+      return 3;         `       // The node is not sufficiently far away, so the children of this node will be evaluated.
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void forceBarnesHut
+
+  ( QuadTree*   qt    ,
+    BodyList*   blist ,
+    int         iNod  ,
+    int         iBod  )
+
+{
+  Vector  posi;
+  Vector  posj;
+  Vector  unitij;
+  Vector  forceVec;
+  Vector  newForce;
+  double  mi;
+  double  mj;
+  double  distance;
+  double  force;
+
+  posi          = blist->body[iBod].pos;
+  mi            = blist->body[iBod].mass;
+  posj          = qt->node[iNod].com;
+  mj            = qt->node[iNod].mass;
+
+  distance      = sqrt(pow((posi.x - posj.x), 2) + pow((posi.y - posj.y), 2));
+  force         = GRAV_CONSTANT * mi * mj / pow(distance, 2);
+
+  unitij.x      = (posj.x - posi.x) / distance;
+  unitij.y      = (posj.y - posi.y) / distance;
+  forceVec.x    = force * unitij.x;
+  forceVec.y    = force * unitij.y;
+
+  newForce.x    = blist->body[iBod].force.x + forceVec.x;
+  newForce.y    = blist->body[iBod].force.y + forceVec.y;
+
+  blist->body[iBod].force = newForce;  
 }
