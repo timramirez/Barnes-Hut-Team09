@@ -247,6 +247,20 @@ void printQuadTree
   ( QuadTree*   qt );
 
 //-----------------------------------------------------------------------------
+//  GenerateXMLfile: Function that creates a XML file containing the position 
+//                   of the bodies and the structure of the Barnes-Hut nodes
+//    pre    : The QuadTRee and the BodyList must be initialised. 
+//    post   : The XML file is created in the main directory.
+//    result : A file called 'file.xml' (stored in the directory of all other files
+//             which can be opened in e.g. a Chrome Webbroser.
+//-----------------------------------------------------------------------------
+
+
+void GenerateXMLfile
+
+( BodyList*       blist,
+  QuadTree*       qt );
+
 //  clearForces: Function that clears the forces on all bodies 
 //    pre    : -
 //    post   : The forces in all bodies is reset to zero.
@@ -290,5 +304,6 @@ void bruteForceBody
 void printBruteForces
 
   ( BodyList*   blist );
+
 
 #endif
