@@ -23,9 +23,7 @@ int main( void )
 
   readInput( "input500.txt" , blist );
   
-  printBodies( blist );
-
-  t0 = clock();
+//  printBodies( blist );
   
   initQuadTree( qt , blist->domainSize );
 
@@ -34,9 +32,17 @@ int main( void )
     addBodyToNode( qt , &blist->body[i] , 0 );
   }
 
+  t0 = clock();
+
+  clearForces( blist );
+
+  bruteForces( blist );
+
+//  printBruteForces ( blist );
+
   t1 = clock();
 
-  printf("Time needed to fill the QuadTree:   %f  seconds.\n", 
+  printf("Time needed to calculate forces:   %f  seconds.\n", 
            (double)(t1 - t0)/CLOCKS_PER_SEC );
 
   printQuadTree(qt);

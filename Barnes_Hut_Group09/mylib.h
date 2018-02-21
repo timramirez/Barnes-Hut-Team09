@@ -238,7 +238,7 @@ int initNode
 //-----------------------------------------------------------------------------
 //  printQuadTree: Function that prints the quadtree
 //    pre    : The QuadTRee must be initialised. 
-//    post   : The quadtree is printed to stdout
+//    post   : The quadtree is printed to stdout.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -260,6 +260,50 @@ void GenerateXMLfile
 
 ( BodyList*       blist,
   QuadTree*       qt );
+
+//  clearForces: Function that clears the forces on all bodies 
+//    pre    : -
+//    post   : The forces in all bodies is reset to zero.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void clearForces
+
+  ( BodyList*  blist );
+
+//-----------------------------------------------------------------------------
+//  bruteForces: Function that calculates the brute forces on all bodies 
+//    pre    : -
+//    post   : The brute forces are calculated and saved in all bodies.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void bruteForces
+
+  ( BodyList*  blist );
+
+//-----------------------------------------------------------------------------
+//  bruteForceBody: Function that calculates the brute forces on a single body
+//    pre    : -
+//    post   : The brute forces are calculated and saved in one body.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void bruteForceBody
+
+  ( BodyList*   blist ,
+    int         iBod  );
+
+//-----------------------------------------------------------------------------
+//  printBruteForces: Function that prints the brute forces on all bodies
+//    pre    : -
+//    post   : The brute forces on all bodies are printed.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void printBruteForces
+
+  ( BodyList*   blist );
 
 
 #endif

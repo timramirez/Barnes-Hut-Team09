@@ -374,8 +374,6 @@ void printQuadTree
 //
 //-----------------------------------------------------------------------------
 
-
-
 void GenerateXMLfile
 
 ( BodyList*       blist,
@@ -448,4 +446,104 @@ fprintf(f, "</svg> \n");
 
 fclose(f);
 
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void clearForces
+
+  ( BodyList*   blist)
+
+{
+  int iBod;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    blist->body[iBod].force.x = 0;
+    blist->body[iBod].force.y = 0;
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void bruteForces
+
+  ( BodyList*   blist)
+
+{
+  int iBod;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    bruteForceBody( blist, iBod );
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void bruteForceBody
+
+  ( BodyList*   blist ,
+    int         iBod  )
+
+{
+  Vector  posi;
+  Vector  posj;
+  Vector  unitij;
+  Vector  forceVec;
+  Vector  newForcei;
+  Vector  newForcej;
+  double  mi;
+  double  mj;
+  int     jBod;
+  double  distance;
+  double  force;
+
+  posi    = blist->body[iBod].pos;
+  mi      = blist->body[iBod].mass;
+
+  for ( jBod = (iBod + 1) ; jBod < blist->nBod ; jBod++ )
+  {
+    posj          = blist->body[jBod].pos;
+    mj            = blist->body[jBod].mass;
+
+    distance      = sqrt(pow((posi.x - posj.x), 2) + pow((posi.y - posj.y), 2));
+    force         = GRAV_CONSTANT * mi * mj / pow(distance, 2);
+
+    unitij.x      = (posj.x - posi.x) / distance;
+    unitij.y      = (posj.y - posi.y) / distance;
+    forceVec.x    = force * unitij.x;
+    forceVec.y    = force * unitij.y;
+
+    newForcei.x   = blist->body[iBod].force.x + forceVec.x;
+    newForcei.y   = blist->body[iBod].force.y + forceVec.y;
+    newForcej.x   = blist->body[jBod].force.x - forceVec.x;
+    newForcej.y   = blist->body[jBod].force.y - forceVec.y;
+
+    blist->body[iBod].force = newForcei;
+    blist->body[jBod].force = newForcej;
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void printBruteForces
+
+  ( BodyList* blist)
+
+{
+  int iBod;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    printf("The resulting brute force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].force.x, blist->body[iBod].force.y);
+  }
 }
