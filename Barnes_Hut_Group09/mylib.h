@@ -42,8 +42,10 @@ typedef struct
 {
   Vector      pos;
   Vector      velo;
-  Vector      force;
+  Vector      bruteForce;
+  Vector      barnesHutForce;
   double      mass;
+  double      forceErrori;
   int         idx;
 } Body;
 
@@ -58,6 +60,7 @@ typedef struct
   double      domainSize;
   int         nBod;
   Body        body[];
+  double      forceError;
 } BodyList;
 
 //-----------------------------------------------------------------------------
@@ -267,7 +270,7 @@ void GenerateXMLfile
 //    result : -
 //-----------------------------------------------------------------------------
 
-void clearForces
+void clearBruteForces
 
   ( BodyList*  blist );
 
@@ -295,13 +298,13 @@ void bruteForceBody
     int         iBod  );
 
 //-----------------------------------------------------------------------------
-//  printBruteForces: Function that prints the brute forces on all bodies
+//  printBruteForces: Function that prints the forces on all bodies
 //    pre    : -
 //    post   : The brute forces on all bodies are printed.
 //    result : -
 //-----------------------------------------------------------------------------
 
-void printBruteForces
+void printForces
 
   ( BodyList*   blist );
 
@@ -316,7 +319,7 @@ void barnesHut
 
   ( QuadTree*       qt    , 
     BodyList*       blist ,
-    float           theta );
+    double          theta );
 
 //-----------------------------------------------------------------------------
 //  barnesHutBody: Function that calculates the BarnesHut forces on the system
@@ -330,7 +333,8 @@ void barnesHutBody
   ( QuadTree*       qt    , 
     BodyList*       blist ,
     int             iBod  ,
-    float           theta );
+    double          theta , 
+    int             iNod  );
 
 //-----------------------------------------------------------------------------
 //  checkCalculationMethod: Function that determines what step in the BarnesHut 
@@ -346,7 +350,7 @@ int checkCalculationMethod
   ( QuadTree*       qt    , 
     BodyList*       blist ,
     int             iBod  ,
-    float           theta ,
+    double          theta ,
     int             iNod  );
 
 //-----------------------------------------------------------------------------
@@ -363,6 +367,40 @@ void forceBarnesHut
     BodyList*       blist ,
     int             iNod  ,
     int             iBod  );
+
+//-----------------------------------------------------------------------------
+//  Testprint:.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void testPrint
+
+  ( QuadTree*       qt    ,
+    BodyList*       blist );
+
+//-----------------------------------------------------------------------------
+//  Testprint:.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void writeForcesToText 
+
+  ( BodyList*       blist );
+
+//-----------------------------------------------------------------------------
+//  Testprint:.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void clearBarnesHut
+
+  ( BodyList*       blist );
 
 
 #endif
