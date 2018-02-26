@@ -376,8 +376,8 @@ void printQuadTree
 
 void GenerateXMLfile
 
-( BodyList*       blist,
-  QuadTree*       qt )
+(   QuadTree*       qt    , 
+    BodyList*       blist )
 
 {
 
@@ -452,7 +452,7 @@ fclose(f);
 //
 //-----------------------------------------------------------------------------
 
-void clearForces
+void clearBruteForces
 
   ( BodyList*   blist)
 
@@ -461,8 +461,8 @@ void clearForces
 
   for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
   {
-    blist->body[iBod].force.x = 0;
-    blist->body[iBod].force.y = 0;
+    blist->body[iBod].bruteForce.x = 0;
+    blist->body[iBod].bruteForce.y = 0;
   }
 }
 
@@ -521,13 +521,13 @@ void bruteForceBody
     forceVec.x    = force * unitij.x;
     forceVec.y    = force * unitij.y;
 
-    newForcei.x   = blist->body[iBod].force.x + forceVec.x;
-    newForcei.y   = blist->body[iBod].force.y + forceVec.y;
-    newForcej.x   = blist->body[jBod].force.x - forceVec.x;
-    newForcej.y   = blist->body[jBod].force.y - forceVec.y;
+    newForcei.x   = blist->body[iBod].bruteForce.x + forceVec.x;
+    newForcei.y   = blist->body[iBod].bruteForce.y + forceVec.y;
+    newForcej.x   = blist->body[jBod].bruteForce.x - forceVec.x;
+    newForcej.y   = blist->body[jBod].bruteForce.y - forceVec.y;
 
-    blist->body[iBod].force = newForcei;
-    blist->body[jBod].force = newForcej;
+    blist->body[iBod].bruteForce = newForcei;
+    blist->body[jBod].bruteForce = newForcej;
   }
 }
 
@@ -535,7 +535,7 @@ void bruteForceBody
 //
 //-----------------------------------------------------------------------------
 
-void printBruteForces
+void printForces
 
   ( BodyList* blist)
 
@@ -544,6 +544,308 @@ void printBruteForces
 
   for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
   {
-    printf("The resulting brute force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].force.x, blist->body[iBod].force.y);
+    printf("The resulting brute force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].bruteForce.x, blist->body[iBod].bruteForce.y);
+    printf("The resulting Barnes-Hut force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].barnesHutForce.x, blist->body[iBod].barnesHutForce.y);
   }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void barnesHut
+
+(   QuadTree*       qt    , 
+    BodyList*       blist ,
+    double          theta )
+
+{
+  int iBod;
+
+  int iNod = 0;
+  
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+//    printf("Calculating for body %d with x %e and y %e. \n", iBod, blist->body[iBod].pos.x, blist->body[iBod].pos.y);
+    barnesHutBody( qt, blist, iBod, theta, iNod );
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void barnesHutBody
+
+(   QuadTree*       qt    , 
+    BodyList*       blist ,
+    int             iBod  ,
+    double          theta ,
+    int             iNod  )
+
+{
+  int iChild[4];
+  int i;
+  
+//  printf("Using node %d with bottomleft x %e and y %e.\n", iNod, qt->node[iNod].box.point1.x, qt->node[iNod].box.point1.y);
+
+  int solveMethod = checkCalculationMethod( qt, blist, iBod, theta, iNod );
+
+//  printf("For body %d and node %d  the calculation method is %d.\n", iBod, iNod, solveMethod);
+
+  if ( solveMethod == 0 || solveMethod == 1 )
+  {
+    forceBarnesHut( qt, blist, iNod, iBod );
+  }
+  else if ( solveMethod == 2 )
+  {
+    for ( i = 0 ; i < 4 ; i++ )
+      {
+      iChild[i] = qt->node[iNod].child[i];
+
+      if (iChild[i] > -1 )
+      {
+        barnesHutBody( qt, blist, iBod, theta, iChild[i] );
+      }
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+int checkCalculationMethod
+
+(   QuadTree*       qt    , 
+    BodyList*       blist , 
+    int             iBod  , 
+    double          theta , 
+    int             iNod  )
+
+{
+  if ( qt->node[iNod].nBod == 1 )
+  {
+    return 0;                   // The node is an external node, so calculate the forces.
+  }
+  else
+  {
+    double boxWidth;
+    double distance;
+
+    Vector    posi = blist->body[iBod].pos;
+    Vector    posj = qt->node[iNod].com;
+
+    boxWidth = fabs( qt->node[iNod].box.point1.x - qt->node[iNod].box.point2.x );
+    distance = sqrt(pow((posi.x - posj.x), 2) + pow((posi.y - posj.y), 2));
+
+    if ( boxWidth/distance < theta )
+    {
+      return 1;                 // The node is sufficiently far away with this width, so calculate via center of mass of node.
+    }
+    else
+    {
+      return 2;                 // The node is not sufficiently far away, so the children of this node will be evaluated.
+    }
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void forceBarnesHut
+
+  ( QuadTree*   qt    ,
+    BodyList*   blist ,
+    int         iNod  ,
+    int         iBod  )
+
+{
+  Vector  posi;
+  Vector  posj;
+  Vector  unitij;
+  Vector  forceVec;
+  Vector  newForce;
+  double  mi;
+  double  mj;
+  double  distance;
+  double  force;
+
+  posi          = blist->body[iBod].pos;
+  mi            = blist->body[iBod].mass;
+  posj          = qt->node[iNod].com;
+  mj            = qt->node[iNod].mass;
+
+  distance      = sqrt(pow((posi.x - posj.x), 2) + pow((posi.y - posj.y), 2));
+  
+  if ( posi.x != posj.x || posi.y != posj.y)
+  {
+    force         = GRAV_CONSTANT * mi * mj / pow(distance, 2);
+ 
+    unitij.x      = (posj.x - posi.x) / distance;
+    unitij.y      = (posj.y - posi.y) / distance;
+    forceVec.x    = force * unitij.x;
+    forceVec.y    = force * unitij.y;
+
+    newForce.x    = blist->body[iBod].barnesHutForce.x + forceVec.x;
+    newForce.y    = blist->body[iBod].barnesHutForce.y + forceVec.y;
+
+    if ( ( fabs(forceVec.x) > fabs( 10 * blist->body[iBod].bruteForce.x ) ) || ( fabs(forceVec.y) > fabs( 10 * blist->body[iBod].bruteForce.y ) ) )
+    {
+//      printf("The BH force on body %d from node %d is %e in x direction and %e in y direction.\n The brute force was %e in x and %e in y. \n", iBod, iNod, forceVec.x, forceVec.y, blist->body[iBod].bruteForce.x, blist->body[iBod].bruteForce.y);
+    }
+
+    if ( iBod == 41 && iNod == 72 )
+    {
+//      printf("Body %d and node %d have distance %e and boxwidth %e.\n", iBod, iNod, distance, fabs( qt->node[iNod].box.point1.x - qt->node[iNod].box.point2.x ));
+    }
+
+    blist->body[iBod].barnesHutForce = newForce;  
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void testPrint
+
+  ( QuadTree*   qt    ,
+    BodyList*   blist )
+
+{
+  int   iNod = 72;
+  int   iBod = 41;
+  printf("Body %d has x %e and y %e. Node %d has center of mass location x %e and y %e.\n", iBod, blist->body[iBod].pos.x, blist->body[iBod].pos.y, iNod, qt->node[iNod].com.x, qt->node[iNod].com.y);
+  printf("Node %d has bottomleft x %e and y %e and topright x %e and y %e.\n", iNod, qt->node[iNod].box.point1.x, qt->node[iNod].box.point1.y, qt->node[iNod].box.point2.x, qt->node[iNod].box.point2.y);
+  printf("Node %d had children %d, %d, %d and %d\n", iNod, qt->node[iNod].child[0], qt->node[iNod].child[1], qt->node[iNod].child[2], qt->node[iNod].child[3]);
+  iNod = 73;
+  printf("Node %d had children %d, %d, %d and %d\n", iNod, qt->node[iNod].child[0], qt->node[iNod].child[1], qt->node[iNod].child[2], qt->node[iNod].child[3]);
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void writeForcesToText 
+
+  ( BodyList*       blist )
+
+{
+  FILE *f = fopen("file.txt", "w");
+  if (f == NULL)
+  {
+    printf("Error opening file!\n");
+    exit(1);
+  }
+
+  int iBod;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    fprintf(f,"The resulting brute force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].bruteForce.x, blist->body[iBod].bruteForce.y);
+    fprintf(f,"The resulting Barnes-Hut force on body %d is %e in x direction and %e in y direction\n", iBod, blist->body[iBod].barnesHutForce.x, blist->body[iBod].barnesHutForce.y);
+  }
+
+  fclose(f);
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void clearBarnesHut
+
+  ( BodyList*     blist )
+
+{
+  int iBod;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    blist->body[iBod].barnesHutForce.x = 0;
+    blist->body[iBod].barnesHutForce.y = 0;
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void error
+
+  ( BodyList*     blist ,
+    double        theta )
+
+{
+  double  forceDif;
+  double  absForce;
+  int     iBod;
+
+  resetError( blist );
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    forceDif = sqrt( pow( (blist->body[iBod].barnesHutForce.x - blist->body[iBod].bruteForce.x ), 2) + pow( (blist->body[iBod].barnesHutForce.y - blist->body[iBod].bruteForce.y ), 2));
+    absForce = sqrt( pow( (blist->body[iBod].bruteForce.x), 2) + pow( (blist->body[iBod].bruteForce.y), 2) );
+
+    blist->body[iBod].forceErrori = forceDif / absForce;
+
+//    printf("The error on body %d is %e.\n", iBod, blist->body[iBod].forceErrori);
+
+    blist->forceError = blist->forceError + blist->body[iBod].forceErrori;
+
+    if ( blist->body[iBod].forceErrori > 1.0 )
+    {
+//      printf("Body %d has an error of %e. \n Brute froce is %e in x and %e in y.\n BH is %e in x and %e in y.\n", iBod, blist->body[iBod].forceErrori, blist->body[iBod].bruteForce.x, blist->body[iBod].bruteForce.y, blist->body[iBod].barnesHutForce.x, blist->body[iBod].barnesHutForce.y);
+    }
+  }
+
+  blist->forceError = blist->forceError / blist->nBod;
+
+  maxError( blist, theta );
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void resetError
+
+  ( BodyList*     blist )
+
+{
+  int     iBod;
+
+  blist->forceError = 0.0;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    blist->body[iBod].forceErrori = 0.0;
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void maxError
+
+  ( BodyList*     blist ,
+    double        theta )
+
+{
+  int     iBod;
+  double  maxError = 0.0;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    if ( blist->body[iBod].forceErrori > maxError )
+    {
+      maxError = blist->body[iBod].forceErrori;
+    }
+  }
+
+  printf("The maximum error for theta %e is %e.\n", theta, maxError);
 }
