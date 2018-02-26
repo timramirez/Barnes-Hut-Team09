@@ -636,7 +636,7 @@ int checkCalculationMethod
     Vector    posi = blist->body[iBod].pos;
     Vector    posj = qt->node[iNod].com;
 
-    boxWidth = abs( qt->node[iNod].box.point1.x - qt->node[iNod].box.point2.x );
+    boxWidth = fabs( qt->node[iNod].box.point1.x - qt->node[iNod].box.point2.x );
     distance = sqrt(pow((posi.x - posj.x), 2) + pow((posi.y - posj.y), 2));
 
     if ( boxWidth/distance < theta )
@@ -691,7 +691,15 @@ void forceBarnesHut
     newForce.x    = blist->body[iBod].barnesHutForce.x + forceVec.x;
     newForce.y    = blist->body[iBod].barnesHutForce.y + forceVec.y;
 
-//    printf("The force on body %d from node %d is %e in x direction and %e in y direction.\n", iBod, iNod, forceVec.x, forceVec.y);
+    if ( ( fabs(forceVec.x) > fabs( 10 * blist->body[iBod].bruteForce.x ) ) || ( fabs(forceVec.y) > fabs( 10 * blist->body[iBod].bruteForce.y ) ) )
+    {
+//      printf("The BH force on body %d from node %d is %e in x direction and %e in y direction.\n The brute force was %e in x and %e in y. \n", iBod, iNod, forceVec.x, forceVec.y, blist->body[iBod].bruteForce.x, blist->body[iBod].bruteForce.y);
+    }
+
+    if ( iBod == 41 && iNod == 72 )
+    {
+//      printf("Body %d and node %d have distance %e and boxwidth %e.\n", iBod, iNod, distance, fabs( qt->node[iNod].box.point1.x - qt->node[iNod].box.point2.x ));
+    }
 
     blist->body[iBod].barnesHutForce = newForce;  
   }
@@ -707,9 +715,13 @@ void testPrint
     BodyList*   blist )
 
 {
-  int   iNod = 99;
-  int   iBod = 49;
-//  printf("Body %d has x %e and y %e. Node %d has location x %e and y %e.\n", iBod, blist->body[iBod].pos.x, blist->body[iBod].pos.y, iNod, qt->node[iNod].com.x, qt->node[iNod].com.y);
+  int   iNod = 72;
+  int   iBod = 41;
+  printf("Body %d has x %e and y %e. Node %d has center of mass location x %e and y %e.\n", iBod, blist->body[iBod].pos.x, blist->body[iBod].pos.y, iNod, qt->node[iNod].com.x, qt->node[iNod].com.y);
+  printf("Node %d has bottomleft x %e and y %e and topright x %e and y %e.\n", iNod, qt->node[iNod].box.point1.x, qt->node[iNod].box.point1.y, qt->node[iNod].box.point2.x, qt->node[iNod].box.point2.y);
+  printf("Node %d had children %d, %d, %d and %d\n", iNod, qt->node[iNod].child[0], qt->node[iNod].child[1], qt->node[iNod].child[2], qt->node[iNod].child[3]);
+  iNod = 73;
+  printf("Node %d had children %d, %d, %d and %d\n", iNod, qt->node[iNod].child[0], qt->node[iNod].child[1], qt->node[iNod].child[2], qt->node[iNod].child[3]);
 }
 
 //-----------------------------------------------------------------------------
@@ -755,4 +767,85 @@ void clearBarnesHut
     blist->body[iBod].barnesHutForce.x = 0;
     blist->body[iBod].barnesHutForce.y = 0;
   }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void error
+
+  ( BodyList*     blist ,
+    double        theta )
+
+{
+  double  forceDif;
+  double  absForce;
+  int     iBod;
+
+  resetError( blist );
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    forceDif = sqrt( pow( (blist->body[iBod].barnesHutForce.x - blist->body[iBod].bruteForce.x ), 2) + pow( (blist->body[iBod].barnesHutForce.y - blist->body[iBod].bruteForce.y ), 2));
+    absForce = sqrt( pow( (blist->body[iBod].bruteForce.x), 2) + pow( (blist->body[iBod].bruteForce.y), 2) );
+
+    blist->body[iBod].forceErrori = forceDif / absForce;
+
+//    printf("The error on body %d is %e.\n", iBod, blist->body[iBod].forceErrori);
+
+    blist->forceError = blist->forceError + blist->body[iBod].forceErrori;
+
+    if ( blist->body[iBod].forceErrori > 1.0 )
+    {
+//      printf("Body %d has an error of %e. \n Brute froce is %e in x and %e in y.\n BH is %e in x and %e in y.\n", iBod, blist->body[iBod].forceErrori, blist->body[iBod].bruteForce.x, blist->body[iBod].bruteForce.y, blist->body[iBod].barnesHutForce.x, blist->body[iBod].barnesHutForce.y);
+    }
+  }
+
+  blist->forceError = blist->forceError / blist->nBod;
+
+  maxError( blist, theta );
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void resetError
+
+  ( BodyList*     blist )
+
+{
+  int     iBod;
+
+  blist->forceError = 0.0;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    blist->body[iBod].forceErrori = 0.0;
+  }
+}
+
+//-----------------------------------------------------------------------------
+//
+//-----------------------------------------------------------------------------
+
+void maxError
+
+  ( BodyList*     blist ,
+    double        theta )
+
+{
+  int     iBod;
+  double  maxError = 0.0;
+
+  for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
+  {
+    if ( blist->body[iBod].forceErrori > maxError )
+    {
+      maxError = blist->body[iBod].forceErrori;
+    }
+  }
+
+  printf("The maximum error for theta %e is %e.\n", theta, maxError);
 }

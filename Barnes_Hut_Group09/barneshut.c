@@ -21,7 +21,7 @@ int main( void )
   BodyList     *blist = malloc(sizeof( BodyList ) + 100000*sizeof(Body));
   QuadTree     *qt    = malloc(sizeof( QuadTree ) + 200000*sizeof(Node));
 
-  readInput( "input5000.txt" , blist );
+  readInput( "input50000.txt" , blist );
   
 //  printBodies( blist );
   
@@ -36,7 +36,7 @@ int main( void )
 
   t5 = clock();
 
-  printf("Time needed to build the QuadTree:   %f  seconds.\n", 
+  printf("Time needed to build the QuadTree: %f seconds.\n", 
            (double)(t5 - t4)/CLOCKS_PER_SEC );
 
   clearBruteForces( blist );
@@ -47,7 +47,7 @@ int main( void )
 
   t1 = clock();
 
-  printf("Time needed to calculate brute forces:   %f  seconds.\n", 
+  printf("Time needed to calculate brute forces: %f seconds.\n", 
            (double)(t1 - t0)/CLOCKS_PER_SEC );
 
 //  printQuadTree(qt);
@@ -66,10 +66,12 @@ int main( void )
 
     t3 = clock();
 
-    printf("Time needed to calculate Barnes-Hut forces:   %f  seconds.\n", 
-           (double)(t3 - t2)/CLOCKS_PER_SEC );
+    printf("Time needed to calculate Barnes-Hut forces for theta %e: %f seconds.\n", 
+           theta, (double)(t3 - t2)/CLOCKS_PER_SEC );
 
-    error ( blist );
+    error ( blist, theta );
+
+    printf("Average error for theta %e: %f.\n", theta, blist->forceError);
   }
 
 //  printForces ( blist );

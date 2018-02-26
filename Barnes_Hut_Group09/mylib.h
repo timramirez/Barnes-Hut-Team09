@@ -58,9 +58,9 @@ typedef struct
 typedef struct
 {
   double      domainSize;
+  double      forceError;
   int         nBod;
   Body        body[];
-  double      forceError;
 } BodyList;
 
 //-----------------------------------------------------------------------------
@@ -402,5 +402,39 @@ void clearBarnesHut
 
   ( BodyList*       blist );
 
+//-----------------------------------------------------------------------------
+//  Testprint:.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void error
+
+  ( BodyList*       blist ,
+    double          theta );
+
+//-----------------------------------------------------------------------------
+//  Testprint:.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void resetError
+
+  ( BodyList*     blist );
+
+//-----------------------------------------------------------------------------
+//  Testprint:.
+//    pre    : -
+//    post   : The force on a body is updated for the interaction with the node.
+//    result : -
+//-----------------------------------------------------------------------------
+
+void maxError
+
+  ( BodyList*     blist ,
+    double        theta );
 
 #endif
