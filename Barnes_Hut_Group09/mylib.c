@@ -420,21 +420,33 @@ fprintf(f, "<line x1='0' y1='200' x2='400' y2='200' style='stroke:rgb(0,0,0);str
 
     for ( int iBod = 0 ; iBod < blist->nBod ; iBod++ )
         {
-        fprintf(f, "<circle cx=\"%f\" cy=\"%f\" r=\"0.9\" fill=\"red\"/> \n" , (blist->body[iBod].pos.x+qt->node[0].box.point2.x)*10, (((blist->body[iBod].pos.y)*-1)+qt->node[0].box.point2.y)*10);
+        fprintf(f, "<circle cx=\"%f\" cy=\"%f\" r=\"0.9\" fill=\"red\"/> \n" , 
+                (blist->body[iBod].pos.x+qt->node[0].box.point2.x)*10, 
+                (((blist->body[iBod].pos.y)*-1)+qt->node[0].box.point2.y)*10);
         }
 
 //Generating Barnes-Hut plot
     for ( int iNod = 0 ; iNod < qt->nNod ; iNod++ )
         {
-        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 , 10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 );
-        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 , 10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 );
-        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 , 10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 );
-        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 , 10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 );
+        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 
+                10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 ,
+                10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 );
+        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 
+                10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 , 
+                10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 );
+        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 
+                10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 , 
+                10+((qt->node[iNod].box.point1.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 );
+        fprintf(f, "<line x1='%e' y1='%e' x2='%e' y2='%e' style='stroke:rgb(0,0,0);stroke-width:0.10'/> \n", 
+                10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point2.y)*-1)+20)*10 , 
+                10+((qt->node[iNod].box.point2.x)+20)*10 , 500+(((qt->node[iNod].box.point1.y)*-1)+20)*10 );
         }
 
     for ( int iBod = 0 ; iBod < blist->nBod ; iBod++ )
         {
-        fprintf(f, "<circle cx=\"%f\" cy=\"%f\" r=\"0.9\" fill=\"red\"/> \n" , 10+(blist->body[iBod].pos.x+qt->node[0].box.point2.x)*10, 500+(((blist->body[iBod].pos.y)*-1)+qt->node[0].box.point2.y)*10);
+        fprintf(f, "<circle cx=\"%f\" cy=\"%f\" r=\"0.9\" fill=\"red\"/> \n" , 
+                10+(blist->body[iBod].pos.x+qt->node[0].box.point2.x)*10, 
+                500+(((blist->body[iBod].pos.y)*-1)+qt->node[0].box.point2.y)*10);
         }
 
    
@@ -723,7 +735,8 @@ void error
 
   for ( iBod = 0 ; iBod < blist->nBod ; iBod++ )
   {
-    forceDif = sqrt( pow( (blist->body[iBod].barnesHutForce.x - blist->body[iBod].bruteForce.x ), 2) + pow( (blist->body[iBod].barnesHutForce.y - blist->body[iBod].bruteForce.y ), 2));
+    forceDif = sqrt( pow( (blist->body[iBod].barnesHutForce.x - blist->body[iBod].bruteForce.x ), 2) + 
+                     pow( (blist->body[iBod].barnesHutForce.y - blist->body[iBod].bruteForce.y ), 2));
     absForce = sqrt( pow( (blist->body[iBod].bruteForce.x), 2) + pow( (blist->body[iBod].bruteForce.y), 2) );
 
     blist->body[iBod].forceErrori = forceDif / absForce;
