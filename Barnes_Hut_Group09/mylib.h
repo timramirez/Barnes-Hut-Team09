@@ -6,11 +6,11 @@
  *
  * Implementation of a Barnes-Hut Quadtree algorithm
  * 
- * Part of assignment 1 in the course 4EM30:
+ * Assignment 1 in the course 4EM30 group 9:
  *   Scientific Computing for Mechanical Engineering
  *   2017-2018
  *
- * (c) 2018 Joris Remmers TU/e
+ * (c) 2018 Joris Remmers, Michael Geurtsen and Tim Ramirez TU/e
 -----------------------------------------------------------------------------*/
 #include <stdio.h>
 #include <math.h>
@@ -114,8 +114,8 @@ typedef struct
 //             1.0  (dimension of domain)
 //             2.0 1.0 0.1 0.2 5.0  (x and y position, x and y velocity and mass of the body
 //             .....etc.
-//    pre    : the file should exist
-//    post   : the bodylist blist is filled
+//    pre    : the file should exist.
+//    post   : the bodylist blist is filled.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -125,7 +125,7 @@ void readInput
     BodyList*       blist );
 
 //-----------------------------------------------------------------------------
-//  addBody  : Function that stores a new body in the BodyList
+//  addBody  : Function that stores a new body in the BodyList.
 //    pre    : the structure BodyList is not full.
 //    post   : a new body is stored in the next available position.
 //    result : the body index number is returned. 
@@ -139,7 +139,7 @@ int addBody
     double     mass );
 
 //-----------------------------------------------------------------------------
-//  clearBodyList  : Function to empty the BodyList
+//  clearBodyList  : Function to empty the BodyList.
 //    pre    : -
 //    post   : the counter nBod is set to zero.
 //    result : -
@@ -199,7 +199,7 @@ int getChild
     Node*           node );
 
 //-----------------------------------------------------------------------------
-//  addBodyToNode : Function that adds a body to node idx
+//  addBodyToNode : Function that adds a body to node idx.
 //    pre    : The QuadTRee must be initialised. 
 //    post   : the body is added to the node idx. IF this node is an
 //               internal node, this function is called recursively.
@@ -213,7 +213,7 @@ void addBodyToNode
     int             idx      );
 
 //-----------------------------------------------------------------------------
-//  initQuadTree : initialises the QuadTree
+//  initQuadTree : initialises the QuadTree.
 //    pre    : The QuadTRee must be initialised. 
 //    post   : the body is added to the node idx. IF this node is an
 //               internal node, this function is called recursively.
@@ -239,7 +239,7 @@ int initNode
     Box*         box      );
 
 //-----------------------------------------------------------------------------
-//  printQuadTree: Function that prints the quadtree
+//  printQuadTree: Function that prints the quadtree.
 //    pre    : The QuadTRee must be initialised. 
 //    post   : The quadtree is printed to stdout.
 //    result : -
@@ -250,12 +250,11 @@ void printQuadTree
   ( QuadTree*   qt );
 
 //-----------------------------------------------------------------------------
-//  GenerateXMLfile: Function that creates a XML file containing the position 
-//                   of the bodies and the structure of the Barnes-Hut nodes
+//  GenerateXMLfile: Function that creates a XML file containing the position. 
+//                   of the bodies and the structure of the Barnes-Hut nodes.
 //    pre    : The QuadTRee and the BodyList must be initialised. 
-//    post   : The XML file is created in the main directory.
-//    result : A file called 'file.xml' (stored in the directory of all other files
-//             which can be opened in e.g. a Chrome Webbroser.
+//    post   : The XML file named 'BarnesHutTree.xml' is created in the main directory of the project.
+//    result : -
 //-----------------------------------------------------------------------------
 
 
@@ -264,7 +263,8 @@ void GenerateXMLfile
   ( QuadTree*       qt    , 
     BodyList*       blist );
 
-//  clearForces: Function that clears the forces on all bodies 
+//-----------------------------------------------------------------------------
+//  clearBruteForces: Function that clears the forces on all bodies.
 //    pre    : -
 //    post   : The forces in all bodies is reset to zero.
 //    result : -
@@ -275,7 +275,7 @@ void clearBruteForces
   ( BodyList*  blist );
 
 //-----------------------------------------------------------------------------
-//  bruteForces: Function that calculates the brute forces on all bodies 
+//  bruteForces: Function that calculates the brute forces on all bodies.
 //    pre    : The forces have to be cleared first.
 //    post   : The brute forces are calculated and saved in all bodies.
 //    result : -
@@ -286,9 +286,10 @@ void bruteForces
   ( BodyList*  blist );
 
 //-----------------------------------------------------------------------------
-//  bruteForceBody: Function that calculates the brute forces on a single body
+//  bruteForceBody: Function that calculates the brute forces on a single body.
 //    pre    : -
-//    post   : The brute forces are calculated and saved in one body.
+//    post   : The brute forces are calculated and saved in the body that is has
+//             been called for.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -298,8 +299,8 @@ void bruteForceBody
     int         iBod  );
 
 //-----------------------------------------------------------------------------
-//  printBruteForces: Function that prints the forces on all bodies
-//    pre    : -
+//  printBruteForces: Function that prints the brute forces in x and y on all bodies.
+//    pre    : The brute forces have to be initialised first.
 //    post   : The brute forces on all bodies are printed.
 //    result : -
 //-----------------------------------------------------------------------------
@@ -309,7 +310,7 @@ void printForces
   ( BodyList*   blist );
 
 //-----------------------------------------------------------------------------
-//  barnesHut: Function that calculates the BarnesHut forces on the system
+//  barnesHut: Function that calculates the BarnesHut forces on the system.
 //    pre    : The foreces have to be cleared first.
 //    post   : The forces on the system are calculated via the BarnesHut algorithm.
 //    result : -
@@ -322,9 +323,11 @@ void barnesHut
     double          theta );
 
 //-----------------------------------------------------------------------------
-//  barnesHutBody: Function that calculates the BarnesHut forces on the system
-//    pre    : The quadtree has to be made first.
-//    post   : The forces on a single body are calculated via the BarnesHut algorithm.
+//  barnesHutBody: Function that makes the dicision if the forces on a body caused by
+//                 a node may be calculated or the children of the node have to be evaluated.
+//    pre    : The quadtree has to initialised.
+//    post   : The oby and node are passed on to the calculating function or the children of 
+//             the node are evaluated in this function again.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -338,11 +341,11 @@ void barnesHutBody
 
 //-----------------------------------------------------------------------------
 //  checkCalculationMethod: Function that determines what step in the BarnesHut 
-//  algorithm will be followed.
+//                          algorithm should be made next.
 //    pre    : -
-//    post   : A step in the BarnesHut algorithm is selected
-//    result : 1 for a leaf, 2 if the center of mass of the node can be used for
-//             the calculation and 3 if the children of the node has to be evaluated.
+//    post   : A step in the BarnesHut algorithm is selected.
+//    result : 0 for a leaf, 1 if the center of mass of the node can be used for
+//             the calculation and 2 if the children of the node has to be evaluated.
 //-----------------------------------------------------------------------------
 
 int checkCalculationMethod
@@ -354,8 +357,8 @@ int checkCalculationMethod
     int             iNod  );
 
 //-----------------------------------------------------------------------------
-//  forceBarnesHut: Function that calculates and updates the force on a single body 
-//  casued by a single node in the quad tree.
+//  forceBarnesHut: Function that calculates and updates the Barnes-Hut force on a 
+//                  single body casued by a single node in the quad tree.
 //    pre    : -
 //    post   : The force on a body is updated for the interaction with the node.
 //    result : -
@@ -369,32 +372,9 @@ void forceBarnesHut
     int             iBod  );
 
 //-----------------------------------------------------------------------------
-//  Testprint:.
+//  clearBarnesHut: A function that clears the Barnes-Hut forces on all bodies.
 //    pre    : -
-//    post   : The force on a body is updated for the interaction with the node.
-//    result : -
-//-----------------------------------------------------------------------------
-
-void testPrint
-
-  ( QuadTree*       qt    ,
-    BodyList*       blist );
-
-//-----------------------------------------------------------------------------
-//  Testprint:.
-//    pre    : -
-//    post   : The force on a body is updated for the interaction with the node.
-//    result : -
-//-----------------------------------------------------------------------------
-
-void writeForcesToText 
-
-  ( BodyList*       blist );
-
-//-----------------------------------------------------------------------------
-//  Testprint:.
-//    pre    : -
-//    post   : The force on a body is updated for the interaction with the node.
+//    post   : The force in x and y direction of all bodies is set to zero.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -403,9 +383,10 @@ void clearBarnesHut
   ( BodyList*       blist );
 
 //-----------------------------------------------------------------------------
-//  Testprint:.
-//    pre    : -
-//    post   : The force on a body is updated for the interaction with the node.
+//  error: A function that determines the average error of the Barnes-Hut forces 
+//         compared to the brute forces.
+//    pre    : The brute forces and Barnes-Hut forces have to be initialised. 
+//    post   : The error of the Barnes-Hut force is printed to the screen.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -415,9 +396,9 @@ void error
     double          theta );
 
 //-----------------------------------------------------------------------------
-//  Testprint:.
+//  resetError: A function that resets the average error to zero.
 //    pre    : -
-//    post   : The force on a body is updated for the interaction with the node.
+//    post   : The average error is set to zero.
 //    result : -
 //-----------------------------------------------------------------------------
 
@@ -426,9 +407,10 @@ void resetError
   ( BodyList*     blist );
 
 //-----------------------------------------------------------------------------
-//  Testprint:.
+//  maxError: A function that determines the maximum error on a single body and 
+//            prints it to the screen.
 //    pre    : -
-//    post   : The force on a body is updated for the interaction with the node.
+//    post   : The maximum error on a body is printed to the screen.
 //    result : -
 //-----------------------------------------------------------------------------
 
